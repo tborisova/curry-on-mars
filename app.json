@@ -2,6 +2,7 @@
   "expo": {
     "name": "curry-on-mars",
     "slug": "curry-on-mars",
+    "scheme": "curry-on-mars",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -31,6 +30,7 @@
         "projectId": "200d3f7d-de78-4c5a-8699-25dc561692ea"
       }
     },
-    "owner": "ts.borisova3"
+    "owner": "ts.borisova3",
+    "plugins": ["expo-router"]
   }
 }
