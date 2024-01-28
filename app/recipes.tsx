@@ -1,8 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Link, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { FlatList, SafeAreaView, Text, View } from "react-native";
-import { styles } from "../styles";
+import { Text, View } from "react-native";
+import { Appbar, List, PaperProvider } from "react-native-paper";
 
 const RECIPES = [
   {
@@ -26,23 +25,27 @@ type Recipe = { title: string; description: string };
 
 export default function Recipes({ text }: { text: string }) {
   const local = useLocalSearchParams<{ text: string }>();
+  const router = useRouter();
+  const [expanded, setExpanded] = React.useState(true);
+  const handlePress = () => setExpanded(!expanded);
 
   return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.backButton}>
-          <Ionicons name="arrow-back" size={20} color="black" />
-          <Link href={{ pathname: "/" }}>Back</Link>
-        </View>
-        <Text>You are searching for {local.text}</Text>
-        <FlatList
-          data={RECIPES}
-          renderItem={({ item }) => <Item item={item} />}
-          keyExtractor={(item) => item.id}
-          style={styles.list}
-        />
-      </SafeAreaView>
-    </>
+    <PaperProvider>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={`Results for ${local.text}`} />
+      </Appbar.Header>
+      <List.Section>
+        {RECIPES.map((recipe) => (
+          <List.Item
+            title={recipe.title}
+            description={recipe.description}
+            id={recipe.id}
+            key={recipe.id}
+          />
+        ))}
+      </List.Section>
+    </PaperProvider>
   );
 }
 
