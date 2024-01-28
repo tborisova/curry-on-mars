@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "200d3f7d-de78-4c5a-8699-25dc561692ea"
+      }
+    },
+    "owner": "ts.borisova3"
   }
 }
