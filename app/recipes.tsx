@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { FlatList, SafeAreaView, Text, View } from "react-native";
@@ -29,6 +30,10 @@ export default function Recipes({ text }: { text: string }) {
   return (
     <>
       <SafeAreaView style={styles.container}>
+        <View style={styles.backButton}>
+          <Ionicons name="arrow-back" size={20} color="black" />
+          <Link href={{ pathname: "/" }}>Back</Link>
+        </View>
         <Text>You are searching for {local.text}</Text>
         <FlatList
           data={RECIPES}
@@ -36,8 +41,6 @@ export default function Recipes({ text }: { text: string }) {
           keyExtractor={(item) => item.id}
           style={styles.list}
         />
-
-        <Link href={{ pathname: "/" }}>Back</Link>
       </SafeAreaView>
     </>
   );

@@ -7,6 +7,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  backButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    alignSelf: "flex-start",
+    gap: 3,
+    width: "100%",
+  },
   input: {
     height: 40,
     margin: 12,
