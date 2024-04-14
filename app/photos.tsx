@@ -1,7 +1,9 @@
 import { Camera, CameraType } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
@@ -10,6 +12,95 @@ import {
 import { Appbar, Button, PaperProvider, Text } from "react-native-paper";
 
 let camera: Camera | null;
+
+export default function Photos() {
+  const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [capturedImage, setCapturedImage] = useState<any>(null);
+  const [previewVisible, setPreviewVisible] = React.useState(false);
+  const [
+    permissionForMediaLibraryResponse,
+    requestPermissionForMediaLibraryResponse,
+  ] = MediaLibrary.usePermissions();
+
+  const router = useRouter();
+
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission}>Grant permission</Button>
+      </View>
+    );
+  }
+
+  async function takePicture() {
+    const photo: any = await camera?.takePictureAsync();
+    setCapturedImage(photo);
+    setPreviewVisible(true);
+  }
+
+  const retakePicture = () => {
+    setCapturedImage(null);
+    setPreviewVisible(false);
+  };
+
+  async function savePhoto() {
+    if (permissionForMediaLibraryResponse?.status !== "granted") {
+      await requestPermissionForMediaLibraryResponse();
+    }
+
+    await MediaLibrary.createAssetAsync(capturedImage.uri);
+
+    Alert.alert("Photo saved", "Do you want to take another?", [
+      {
+        text: "Yes",
+        onPress: () => retakePicture(),
+      },
+      {
+        text: "No",
+        onPress: () => router.back(),
+      },
+    ]);
+  }
+
+  return (
+    <PaperProvider>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title="Curry on Mars" />
+      </Appbar.Header>
+      <View style={styles.container}>
+        {previewVisible && capturedImage ? (
+          <CameraPreview
+            photo={capturedImage}
+            savePhoto={savePhoto}
+            retakePicture={retakePicture}
+          />
+        ) : (
+          <Camera
+            type={CameraType.back}
+            ref={(r) => {
+              camera = r;
+            }}
+            style={styles.camera}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={takePicture}>
+                <Text style={styles.text}>Take a picture</Text>
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        )}
+      </View>
+    </PaperProvider>
+  );
+}
 
 const CameraPreview = ({ photo, retakePicture, savePhoto }: any) => {
   console.log("sdsfds", photo);
@@ -86,72 +177,6 @@ const CameraPreview = ({ photo, retakePicture, savePhoto }: any) => {
     </View>
   );
 };
-
-export default function Photos() {
-  const [permission, requestPermission] = Camera.useCameraPermissions();
-  const [capturedImage, setCapturedImage] = useState<any>(null);
-  const [previewVisible, setPreviewVisible] = React.useState(false);
-
-  const router = useRouter();
-
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ textAlign: "center" }}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission}>Grant permission</Button>
-      </View>
-    );
-  }
-
-  async function takePicture() {
-    const photo: any = await camera?.takePictureAsync();
-    setCapturedImage(photo);
-    setPreviewVisible(true);
-  }
-
-  const retakePicture = () => {
-    setCapturedImage(null);
-    setPreviewVisible(false);
-  };
-
-  return (
-    <PaperProvider>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Curry on Mars" />
-      </Appbar.Header>
-      <View style={styles.container}>
-        {previewVisible && capturedImage ? (
-          <CameraPreview
-            photo={capturedImage}
-            savePhoto={() => {}}
-            retakePicture={retakePicture}
-          />
-        ) : (
-          <Camera
-            type={CameraType.back}
-            ref={(r) => {
-              camera = r;
-            }}
-            style={styles.camera}
-          >
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={takePicture}>
-                <Text style={styles.text}>Take a picture</Text>
-              </TouchableOpacity>
-            </View>
-          </Camera>
-        )}
-      </View>
-    </PaperProvider>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
