@@ -2,7 +2,14 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { Appbar, Button, Chip, PaperProvider, Text } from "react-native-paper";
+import {
+  Appbar,
+  Button,
+  Chip,
+  Menu,
+  PaperProvider,
+  Text,
+} from "react-native-paper";
 
 import { Searchbar } from "react-native-paper";
 
@@ -25,20 +32,46 @@ const styles = StyleSheet.create({
   },
 });
 
+const MORE_ICON = "dots-vertical";
+
 export default function Index() {
   const [text, setText] = useState<string>("");
   const router = useRouter();
+  const [visible, setVisible] = React.useState(false);
+
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
 
   return (
     <PaperProvider>
       <Appbar.Header>
         <Appbar.Content title="Curry on Mars" />
+        <Menu
+          visible={visible}
+          onDismiss={closeMenu}
+          anchor={
+            <Appbar.Action icon="plus-circle" onPress={() => openMenu()} />
+          }
+        >
+          <Menu.Item
+            onPress={() => router.push({ pathname: "/photos" })}
+            title="Take a photo"
+          />
+          <Menu.Item onPress={() => {}} title="Add from URL" />
+          <Menu.Item onPress={() => {}} title="Add manually" />
+        </Menu>
       </Appbar.Header>
       <View style={[styles.index]}>
         <Text variant="titleMedium">
           Hello, what do you have in your fridge?
         </Text>
-
+        <View
+          style={{
+            paddingTop: 50,
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        ></View>
         <View>
           <Searchbar
             placeholder="Search"
@@ -55,6 +88,7 @@ export default function Index() {
                       icon="check"
                       onPress={() => console.log("Pressed")}
                       onClose={() => {}}
+                      key={value}
                     >
                       {value}
                     </Chip>
