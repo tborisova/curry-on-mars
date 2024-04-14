@@ -1,4 +1,4 @@
-import { Camera, CameraType } from "expo-camera";
+import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -102,8 +102,15 @@ export default function Photos() {
   );
 }
 
-const CameraPreview = ({ photo, retakePicture, savePhoto }: any) => {
-  console.log("sdsfds", photo);
+function CameraPreview({
+  photo,
+  retakePicture,
+  savePhoto,
+}: {
+  photo: CameraCapturedPicture;
+  retakePicture: () => void;
+  savePhoto: () => void;
+}) {
   return (
     <View
       style={{
@@ -176,7 +183,7 @@ const CameraPreview = ({ photo, retakePicture, savePhoto }: any) => {
       </ImageBackground>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
