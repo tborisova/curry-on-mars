@@ -6,6 +6,7 @@ import {
   Appbar,
   Button,
   Chip,
+  MD3Colors,
   Menu,
   PaperProvider,
   Text,
@@ -50,7 +51,11 @@ export default function Index() {
           visible={visible}
           onDismiss={closeMenu}
           anchor={
-            <Appbar.Action icon="plus-circle" onPress={() => openMenu()} />
+            <Appbar.Action
+              color={MD3Colors.primary30}
+              icon="plus-circle"
+              onPress={() => openMenu()}
+            />
           }
         >
           <Menu.Item
@@ -58,7 +63,10 @@ export default function Index() {
             title="Take a photo"
           />
           <Menu.Item onPress={() => {}} title="Add from URL" />
-          <Menu.Item onPress={() => {}} title="Add manually" />
+          <Menu.Item
+            onPress={() => router.push({ pathname: "/add-manually" })}
+            title="Add manually"
+          />
         </Menu>
       </Appbar.Header>
       <View style={[styles.index]}>

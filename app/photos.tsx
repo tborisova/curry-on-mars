@@ -2,14 +2,15 @@ import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import { ImageBackground, StyleSheet, View } from "react-native";
 import {
-  Alert,
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Appbar, Button, PaperProvider, Text } from "react-native-paper";
+  Appbar,
+  Button,
+  IconButton,
+  MD3Colors,
+  PaperProvider,
+  Text,
+} from "react-native-paper";
 
 let camera: Camera | null;
 
@@ -56,17 +57,6 @@ export default function Photos() {
     }
 
     await MediaLibrary.createAssetAsync(capturedImage.uri);
-
-    Alert.alert("Photo saved", "Do you want to take another?", [
-      {
-        text: "Yes",
-        onPress: () => retakePicture(),
-      },
-      {
-        text: "No",
-        onPress: () => router.back(),
-      },
-    ]);
   }
 
   return (
@@ -83,19 +73,24 @@ export default function Photos() {
             retakePicture={retakePicture}
           />
         ) : (
-          <Camera
-            type={CameraType.back}
-            ref={(r) => {
-              camera = r;
-            }}
-            style={styles.camera}
-          >
+          <>
+            <Camera
+              type={CameraType.back}
+              ref={(r) => {
+                camera = r;
+              }}
+              style={styles.camera}
+            />
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={takePicture}>
-                <Text style={styles.text}>Take a picture</Text>
-              </TouchableOpacity>
+              <IconButton
+                icon="camera"
+                iconColor={MD3Colors.primary40}
+                size={40}
+                mode="contained"
+                onPress={() => takePicture()}
+              />
             </View>
-          </Camera>
+          </>
         )}
       </View>
     </PaperProvider>
@@ -104,81 +99,47 @@ export default function Photos() {
 
 function CameraPreview({
   photo,
-  retakePicture,
   savePhoto,
+  retakePicture,
 }: {
   photo: CameraCapturedPicture;
-  retakePicture: () => void;
   savePhoto: () => void;
+  retakePicture: () => void;
 }) {
+  const router = useRouter();
+
   return (
-    <View
-      style={{
-        backgroundColor: "transparent",
-        flex: 1,
-        width: "100%",
-        height: "100%",
-      }}
-    >
+    <View style={{ flex: 1 }}>
       <ImageBackground
-        source={{ uri: photo && photo.uri }}
-        style={{
-          flex: 1,
-        }}
+        source={{ uri: photo.uri }}
+        resizeMode="cover"
+        style={{ flex: 1, justifyContent: "center" }}
       >
         <View
           style={{
+            alignItems: "flex-end",
+            flexDirection: "row",
+            justifyContent: "space-around",
             flex: 1,
-            flexDirection: "column",
-            padding: 15,
-            justifyContent: "flex-end",
           }}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+          <Button mode="outlined" onPress={retakePicture}>
+            Re-take
+          </Button>
+
+          <Button
+            mode="contained"
+            onPress={() => {
+              savePhoto();
+
+              router.push({
+                pathname: "/recipe-from-photo",
+                params: { uri: photo.uri },
+              });
             }}
           >
-            <TouchableOpacity
-              onPress={retakePicture}
-              style={{
-                width: 130,
-                height: 40,
-
-                alignItems: "center",
-                borderRadius: 4,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 20,
-                }}
-              >
-                Re-take
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={savePhoto}
-              style={{
-                width: 130,
-                height: 40,
-
-                alignItems: "center",
-                borderRadius: 4,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 20,
-                }}
-              >
-                save photo
-              </Text>
-            </TouchableOpacity>
-          </View>
+            Use photo
+          </Button>
         </View>
       </ImageBackground>
     </View>
@@ -186,27 +147,7 @@ function CameraPreview({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  camera: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: "flex-end",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-  },
+  container: { flex: 1, justifyContent: "center", flexDirection: "column" },
+  camera: { flex: 8 },
+  buttonContainer: { backgroundColor: "black", alignItems: "center" },
 });
