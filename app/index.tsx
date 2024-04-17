@@ -59,10 +59,13 @@ export default function Index() {
           }
         >
           <Menu.Item
-            onPress={() => router.push({ pathname: "/photos" })}
+            onPress={() => router.push({ pathname: "/add-from-photo" })}
             title="Take a photo"
           />
-          <Menu.Item onPress={() => {}} title="Add from URL" />
+          <Menu.Item
+            onPress={() => router.push({ pathname: "/add-from-url" })}
+            title="Add from URL"
+          />
           <Menu.Item
             onPress={() => router.push({ pathname: "/add-manually" })}
             title="Add manually"
@@ -94,7 +97,7 @@ export default function Index() {
                   return (
                     <Chip
                       icon="check"
-                      onPress={() => console.log("Pressed")}
+                      onPress={() => {}}
                       onClose={() => {}}
                       key={value}
                     >

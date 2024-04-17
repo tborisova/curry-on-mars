@@ -2,7 +2,7 @@ import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, View } from "react-native";
 import {
   Appbar,
   Button,
@@ -10,14 +10,15 @@ import {
   MD3Colors,
   PaperProvider,
   Text,
+  TextInput,
 } from "react-native-paper";
 
 let camera: Camera | null;
 
-export default function Photos() {
+export default function AddFromPhoto() {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [capturedImage, setCapturedImage] = useState<any>(null);
-  const [previewVisible, setPreviewVisible] = React.useState(false);
+  const [step, setStep] = useState(1);
   const [
     permissionForMediaLibraryResponse,
     requestPermissionForMediaLibraryResponse,
@@ -43,20 +44,21 @@ export default function Photos() {
   async function takePicture() {
     const photo: any = await camera?.takePictureAsync();
     setCapturedImage(photo);
-    setPreviewVisible(true);
+    setStep(2);
   }
 
   const retakePicture = () => {
     setCapturedImage(null);
-    setPreviewVisible(false);
+    setStep(1);
   };
 
-  async function savePhoto() {
+  async function onUsePhoto() {
     if (permissionForMediaLibraryResponse?.status !== "granted") {
       await requestPermissionForMediaLibraryResponse();
     }
 
     await MediaLibrary.createAssetAsync(capturedImage.uri);
+    setStep(3);
   }
 
   return (
@@ -66,13 +68,7 @@ export default function Photos() {
         <Appbar.Content title="Curry on Mars" />
       </Appbar.Header>
       <View style={styles.container}>
-        {previewVisible && capturedImage ? (
-          <CameraPreview
-            photo={capturedImage}
-            savePhoto={savePhoto}
-            retakePicture={retakePicture}
-          />
-        ) : (
+        {step == 1 && (
           <>
             <Camera
               type={CameraType.back}
@@ -92,6 +88,14 @@ export default function Photos() {
             </View>
           </>
         )}
+        {step == 2 && (
+          <CameraPreview
+            photo={capturedImage}
+            onUsePhoto={onUsePhoto}
+            retakePicture={retakePicture}
+          />
+        )}
+        {step == 3 && <Form photo={capturedImage} />}
       </View>
     </PaperProvider>
   );
@@ -99,11 +103,11 @@ export default function Photos() {
 
 function CameraPreview({
   photo,
-  savePhoto,
+  onUsePhoto,
   retakePicture,
 }: {
   photo: CameraCapturedPicture;
-  savePhoto: () => void;
+  onUsePhoto: () => void;
   retakePicture: () => void;
 }) {
   const router = useRouter();
@@ -127,21 +131,59 @@ function CameraPreview({
             Re-take
           </Button>
 
-          <Button
-            mode="contained"
-            onPress={() => {
-              savePhoto();
-
-              router.push({
-                pathname: "/recipe-from-photo",
-                params: { uri: photo.uri },
-              });
-            }}
-          >
+          <Button mode="contained" onPress={() => onUsePhoto()}>
             Use photo
           </Button>
         </View>
       </ImageBackground>
+    </View>
+  );
+}
+
+function Form({ photo }: { photo: CameraCapturedPicture }) {
+  const [title, setTitle] = useState("");
+  const [keywords, setKeywords] = useState<string>("");
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: "column",
+        marginTop: 10,
+        gap: 10,
+      }}
+    >
+      <View
+        style={{
+          flex: 6,
+          marginLeft: 10,
+          marginRight: 10,
+          gap: 10,
+        }}
+      >
+        <TextInput
+          mode="outlined"
+          onChangeText={(text) => setTitle(text)}
+          value={title}
+          label="Title of the recipe"
+        />
+        <TextInput
+          mode="outlined"
+          onChangeText={(text) => setKeywords(text)}
+          value={keywords}
+          label="Keywords"
+        />
+        <Image source={{ uri: photo.uri }} style={{ flex: 1 }}></Image>
+      </View>
+      <View style={{ flex: 1, marginLeft: 10, marginRight: 10 }}>
+        <Button
+          mode="contained"
+          onPress={() => {}}
+          disabled={title.trim().length === 0}
+        >
+          Add
+        </Button>
+      </View>
     </View>
   );
 }
