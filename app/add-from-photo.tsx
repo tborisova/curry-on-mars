@@ -8,7 +8,6 @@ import {
   Button,
   IconButton,
   MD3Colors,
-  PaperProvider,
   Text,
   TextInput,
 } from "react-native-paper";
@@ -62,7 +61,7 @@ export default function AddFromPhoto() {
   }
 
   return (
-    <PaperProvider>
+    <>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Curry on Mars" />
@@ -97,7 +96,7 @@ export default function AddFromPhoto() {
         )}
         {step == 3 && <Form photo={capturedImage} />}
       </View>
-    </PaperProvider>
+    </>
   );
 }
 

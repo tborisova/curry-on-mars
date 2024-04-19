@@ -1,17 +1,10 @@
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
-import {
-  Appbar,
-  Button,
-  Chip,
-  MD3Colors,
-  Menu,
-  PaperProvider,
-  Text,
-} from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Appbar, List, MD3Colors, Menu, Text } from "react-native-paper";
 
+import { gql, useQuery } from "@apollo/client";
 import { Searchbar } from "react-native-paper";
 
 const styles = StyleSheet.create({
@@ -33,7 +26,19 @@ const styles = StyleSheet.create({
   },
 });
 
-const MORE_ICON = "dots-vertical";
+const RECIPES_QUERY = gql`
+  query {
+    recipes {
+      edges {
+        node {
+          id
+          kind
+          title
+        }
+      }
+    }
+  }
+`;
 
 export default function Index() {
   const [text, setText] = useState<string>("");
@@ -43,8 +48,17 @@ export default function Index() {
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
 
+  const { data, loading, error } = useQuery(RECIPES_QUERY);
+
+  if (loading) return <Text>"Loading..."</Text>;
+  if (error) return <Text>`Error! ${error.message}`</Text>;
+
+  if (data) {
+    console.log(data.recipes.edges.map((edge) => edge.node));
+  }
+
   return (
-    <PaperProvider>
+    <>
       <Appbar.Header>
         <Appbar.Content title="Curry on Mars" />
         <Menu
@@ -76,55 +90,37 @@ export default function Index() {
         <Text variant="titleMedium">
           Hello, what do you have in your fridge?
         </Text>
-        <View
-          style={{
-            paddingTop: 50,
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-        ></View>
-        <View>
-          <Searchbar
-            placeholder="Search"
-            onChangeText={setText}
-            value={text}
-            mode="bar"
-          />
-          <SafeAreaView style={[styles.searchValues]}>
-            {text &&
-              text.split(" ").map((value) => {
-                if (value.length > 0) {
-                  return (
-                    <Chip
-                      icon="check"
-                      onPress={() => {}}
-                      onClose={() => {}}
-                      key={value}
-                    >
-                      {value}
-                    </Chip>
-                  );
-                } else {
-                  return null;
-                }
-              })}
-          </SafeAreaView>
-        </View>
+        <Searchbar
+          placeholder="Search"
+          onChangeText={setText}
+          value={text}
+          mode="bar"
+        />
 
-        <View>
-          <Button
-            mode="contained"
-            onPress={() =>
-              router.push({ pathname: "/recipes", params: { text } })
-            }
-            compact
-            disabled={!text}
-          >
-            Search for recipes
-          </Button>
-        </View>
+        {data !== undefined && (
+          <ScrollView>
+            <List.Section>
+              {data.recipes.edges
+                .map((edge) => edge.node)
+                .map((node) => (
+                  <List.Item
+                    title={node.title}
+                    description={node.kind}
+                    id={node.id}
+                    key={node.id}
+                  />
+                ))}
+            </List.Section>
+          </ScrollView>
+        )}
+        {(data === undefined || data.recipes.edges.length === 0) && (
+          // TODO: add buttons to create recipe
+          <Text style={{ alignSelf: "center", marginTop: 20 }}>
+            You don't have any recipes
+          </Text>
+        )}
         <StatusBar style="auto" />
       </View>
-    </PaperProvider>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Appbar, Button, PaperProvider, TextInput } from "react-native-paper";
+import { Appbar, Button, TextInput } from "react-native-paper";
 
 export default function AddFromUrl() {
   const [title, setTitle] = useState<string>("");
@@ -12,7 +12,7 @@ export default function AddFromUrl() {
   const router = useRouter();
 
   return (
-    <PaperProvider>
+    <>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Curry on Mars" />
@@ -53,6 +53,6 @@ export default function AddFromUrl() {
           </Button>
         </View>
       </View>
-    </PaperProvider>
+    </>
   );
 }
