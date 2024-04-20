@@ -4,7 +4,7 @@ import { PaperProvider } from "react-native-paper";
 
 const client = new ApolloClient({
   uri: "http://localhost:3000/graphql",
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({}),
 });
 
 export default function HomeLayout() {

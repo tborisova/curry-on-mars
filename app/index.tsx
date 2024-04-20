@@ -26,8 +26,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const RECIPES_QUERY = gql`
-  query {
+export const RECIPES_QUERY = gql`
+  query Recipes {
     recipes {
       edges {
         node {
@@ -35,6 +35,7 @@ const RECIPES_QUERY = gql`
           kind
           title
         }
+        cursor
       }
     }
   }
@@ -52,10 +53,6 @@ export default function Index() {
 
   if (loading) return <Text>"Loading..."</Text>;
   if (error) return <Text>`Error! ${error.message}`</Text>;
-
-  if (data) {
-    console.log(data.recipes.edges.map((edge) => edge.node));
-  }
 
   return (
     <>

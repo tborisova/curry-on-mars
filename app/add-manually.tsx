@@ -1,8 +1,9 @@
-import { gql, useMutation } from "@apollo/client";
+import { gql, useApolloClient, useMutation } from "@apollo/client";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Alert, View } from "react-native";
 import { Appbar, Button, TextInput } from "react-native-paper";
+import { RecipeEdge, RecipesDocument } from "./__generated__/graphql";
 
 const CREATE_RECIPE_MUTATION = gql`
   mutation CreateRecipeMutation($title: String!, $kind: String!) {
@@ -22,7 +23,8 @@ export default function AddManually() {
   const [text, setText] = useState<string>("");
   const [ingredients, setIngredients] = useState<string>("");
   const router = useRouter();
-  const [mutate, { data }] = useMutation(CREATE_RECIPE_MUTATION);
+  const apollo = useApolloClient();
+  const [mutate] = useMutation(CREATE_RECIPE_MUTATION);
 
   return (
     <>
@@ -73,7 +75,20 @@ export default function AddManually() {
             onPress={() =>
               mutate({
                 variables: { title, kind: "manual" },
-                onCompleted: () => {
+                onCompleted: (data) => {
+                  const newEdge: RecipeEdge = {
+                    __typename: "RecipeEdge",
+                    node: data.createRecipe.recipe,
+                    cursor: null,
+                  };
+
+                  apollo.cache.updateQuery(
+                    { query: RecipesDocument },
+                    (data) => ({
+                      recipes: { edges: [newEdge, ...data.recipes.edges] },
+                    })
+                  );
+
                   Alert.alert("Success", `${title} was created successfully!`, [
                     {
                       text: "Create another one",
@@ -82,7 +97,7 @@ export default function AddManually() {
                     },
                     {
                       text: "Go back to index",
-                      onPress: () => router.replace("/"),
+                      onPress: () => router.push("/"),
                     },
                   ]);
                 },
