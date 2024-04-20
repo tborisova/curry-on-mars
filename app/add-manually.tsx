@@ -85,7 +85,10 @@ export default function AddManually() {
                   apollo.cache.updateQuery(
                     { query: RecipesDocument },
                     (data) => ({
-                      recipes: { edges: [newEdge, ...data.recipes.edges] },
+                      recipes: {
+                        edges: [newEdge, ...data.recipes.edges],
+                        pageInfo: data.recipes.pageInfo,
+                      },
                     })
                   );
 
