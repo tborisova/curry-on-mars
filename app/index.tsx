@@ -1,17 +1,10 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
-import {
-  Appbar,
-  Button,
-  List,
-  MD3Colors,
-  Menu,
-  Text,
-} from "react-native-paper";
+import { Appbar, Button, List, Text } from "react-native-paper";
 
 import { TypedDocumentNode, gql, useQuery } from "@apollo/client";
-import { Searchbar } from "react-native-paper";
+import { FAB, Portal, Searchbar } from "react-native-paper";
 import { RecipesQuery, RecipesQueryVariables } from "./__generated__/graphql";
 
 const styles = StyleSheet.create({
@@ -20,7 +13,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "space-around",
     gap: 6,
-    marginTop: 80,
+    marginTop: 30,
     marginBottom: 10,
     marginLeft: 10,
     marginRight: 10,
@@ -73,10 +66,10 @@ function RecipesList({
   data: RecipesQuery;
   refetch: (variables?: RecipesQueryVariables) => void;
 }) {
-  const [visible, setVisible] = React.useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [text, setText] = useState<string>("");
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   function handleScroll(event) {
     const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
@@ -98,30 +91,6 @@ function RecipesList({
     <>
       <Appbar.Header>
         <Appbar.Content title="Curry on Mars" />
-        <Menu
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            <Appbar.Action
-              color={MD3Colors.primary30}
-              icon="plus-circle"
-              onPress={() => setVisible(true)}
-            />
-          }
-        >
-          <Menu.Item
-            onPress={() => router.push({ pathname: "/add-from-photo" })}
-            title="Take a photo"
-          />
-          <Menu.Item
-            onPress={() => router.push({ pathname: "/add-from-url" })}
-            title="Add from URL"
-          />
-          <Menu.Item
-            onPress={() => router.push({ pathname: "/add-manually" })}
-            title="Add manually"
-          />
-        </Menu>
       </Appbar.Header>
       <View style={[styles.index]}>
         <Searchbar
@@ -131,28 +100,55 @@ function RecipesList({
           mode="bar"
         />
         <ScrollView
-          style={{ marginBottom: 20, marginTop: 10 }}
+          style={{ marginBottom: 20 }}
           onScroll={(event) => handleScroll(event)}
           scrollEventThrottle={16}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={() => refetch()}
+              onRefresh={() => {
+                setRefreshing(true);
+                refetch();
+                setRefreshing(false);
+              }}
             />
           }
         >
           <List.Section>
-            {data.recipes.edges
-              .map((edge) => edge.node)
-              .map((node) => (
-                <List.Item
-                  title={node.title}
-                  description={node.kind}
-                  id={node.id}
-                  key={node.id}
-                />
-              ))}
+            {data.recipes.edges.map((edge) => (
+              <List.Item
+                title={edge.node.title}
+                description={edge.node.kind}
+                id={edge.node.id}
+                key={edge.node.id}
+              />
+            ))}
           </List.Section>
+          <Portal>
+            <FAB.Group
+              open={open}
+              visible
+              icon={open ? "chef-hat" : "plus"}
+              actions={[
+                {
+                  icon: "camera",
+                  label: "From photo",
+                  onPress: () => router.push({ pathname: "/add-from-photo" }),
+                },
+                {
+                  icon: "note-edit",
+                  label: "Add manually",
+                  onPress: () => router.push({ pathname: "/add-manually" }),
+                },
+                {
+                  icon: "link",
+                  label: "From URL",
+                  onPress: () => router.push({ pathname: "/add-from-url" }),
+                },
+              ]}
+              onStateChange={() => setOpen(!open)}
+            />
+          </Portal>
         </ScrollView>
       </View>
     </>
