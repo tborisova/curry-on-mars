@@ -132,7 +132,7 @@ function RecipesList({
               actions={[
                 {
                   icon: "camera",
-                  label: "From photo",
+                  label: "Add from photo",
                   onPress: () => router.push({ pathname: "/add-from-photo" }),
                 },
                 {
@@ -142,7 +142,7 @@ function RecipesList({
                 },
                 {
                   icon: "link",
-                  label: "From URL",
+                  label: "Add from URL",
                   onPress: () => router.push({ pathname: "/add-from-url" }),
                 },
               ]}
